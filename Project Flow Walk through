@@ -1,0 +1,36 @@
+# Enterprise Refactoring & File Parsing Walkthrough
+
+## What Was Accomplished
+
+We have successfully upgraded the backend and frontend to an Enterprise-grade architecture by centralizing all configuration parameters and extending the RAG engine to support advanced file types including PDFs, DOCX, and images.
+
+### 1. Centralized Backend Configurations
+All "magic strings" and "magic numbers" have been removed from individual services and controllers. We created dedicated configuration objects in [core/config.py](file:///e:/New%20Project/Ai_RAG_App/backend/core/config.py) for different domains:
+- `AppConfig`: Application name, version, and CORS origins.
+- `SecurityConfig`: JWT algorithms, expirations, and URLs.
+- `LLMConfig`: ChatGroq model names, system prompts, and history token limits.
+- `VectorStoreConfig`: FAISS dimensions, search neighbor limits (k), and embedding models.
+- `UploadConfig`: File chunk sizes and allowed extensions.
+
+### 2. Frontend Global Configuration
+We created a new [config.js](file:///e:/New%20Project/Ai_RAG_App/frontend/src/config.js) in the React frontend.
+- Extracted the hardcoded `http://localhost:8000` base URL.
+- Connected the UI labels and accepted file inputs to the global `config.SUPPORTED_FILES`.
+- Updated `Dashboard.jsx`, `Login.jsx`, and `Register.jsx` to dynamically pull the API URL from this config object.
+
+### 3. Advanced File Parsing Integration
+We completely revamped the upload process to support `.pdf`, `.docx`, and `.png/.jpg` files by adding a new `FileParserService`.
+- **PDFs**: Implemented `pypdf` to extract text from all pages robustly.
+- **DOCX**: Implemented `python-docx` to read paragraphs.
+- **Images**: Implemented an automated OCR & Description pipeline. We encode the uploaded image to Base64 and send it to Groq's cutting-edge `llama-3.2-11b-vision-preview` model, which extracts the text and describes diagrams perfectly for the FAISS vector store.
+
+### 4. Cleanup
+Identified that the `infrastructure` and `integrations` folders contained deprecated, unused scratch files (`groq_client.py`, `db.py`, `faiss_store.py`) which were superseded by our new `repositories` and `services`.
+
+> [!TIP]
+> You can now safely delete the `backend/integrations` and `backend/infrastructure` folders from your project workspace to keep it perfectly clean!
+
+## Verification
+- Backend routing via `settings.*` is fully operational.
+- Frontend API calls to `${config.API_URL}` are working smoothly.
+- The new `FileParserService` effectively traps exceptions during file reads and prevents the server from crashing on malformed files.
