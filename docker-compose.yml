@@ -7,6 +7,8 @@ services:
       dockerfile: dockerfile
     ports:
       - "8000:8000"
+    extra_hosts:
+      - "DESKTOP-3RB93T5:host-gateway"
     env_file:
       - ./backend/.env
     # Optional: volume mount for development
@@ -20,7 +22,7 @@ services:
       context: ./frontend
       dockerfile: Dockerfile
     ports:
-      - "80:80"
+      - "3000:80"
     depends_on:
       - api
     # Pass environment variables to Vite build if necessary
