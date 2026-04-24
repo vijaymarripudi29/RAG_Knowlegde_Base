@@ -1,0 +1,28 @@
+version: "3.9"
+
+services:
+  api:
+    build: 
+      context: ./backend
+      dockerfile: dockerfile
+    ports:
+      - "8000:8000"
+    env_file:
+      - ./backend/.env
+    # Optional: volume mount for development
+    # volumes:
+    #   - ./backend:/app
+    # Note: Ensure the host in DATABASE_URL can be resolved from within Docker.
+    # If connecting to a local host SQL Server, consider using 'host.docker.internal'
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    ports:
+      - "80:80"
+    depends_on:
+      - api
+    # Pass environment variables to Vite build if necessary
+    # environment:
+    #   - VITE_API_URL=http://localhost:8000
